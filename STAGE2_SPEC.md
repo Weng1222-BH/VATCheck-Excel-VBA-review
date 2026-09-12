@@ -234,3 +234,20 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - EFFECTIVE_OK只表示整合和重扫完成，不代表UNIQUE已可信。后续C5.2必须检查RowIssueFlags/RelationIssues及EffectiveConflicts；RELATION_A_INVALID或RELATION_A_DUPLICATE不得视为可信金额关系。本轮不调用金额层、不决定最终审核。
 - `-EffectiveRelationsTestOnly`新测试135/135 PASS；FullFallback132、CompletedScope73、Snapshot81、GroupAmount44、Amount48、BConflict41、BRowMatch34、AIntegrity29、Matcher38、Parser70、Stage1 89全部真实Excel PASS。27个冻结源码/旧测试/release文件哈希不变。
 - 本轮不实现金额比较、总体金额快速门、最终A_ONLY/B_ONLY、短suffix豁免、baseline/fingerprint、冻结、最终审核、UI或release。检查点和STATUS更新后停止，C5.2未开始。
+
+## C5.2：Effective Relations 统一组金额诊断（2026-09-12）
+
+- 独立模块 `modVATStage2EffectiveAmount`，入口 `VATStage2EvaluateEffectiveAmounts(ByRef a As VATS2ASnapshotResult, ByRef b As VATS2BSnapshotResult, ByRef effective As VATS2EffectiveRelationsResult) As VATS2EffectiveAmountResult`。纯内存只读，不访问 Workbook，不修改冻结模块。
+- 建立完整 `aAmounts(1..a.RecordCount)`，逐原 AIndex 承接 Snapshot.AmountRaw 的 Variant，不重排、不压缩、不转换、不按完成色过滤。仅 EffectiveBInScope=True 的 B 使用既有整行 EffectiveBMatches、EffectiveConflicts 和该 B 原 AmountRaw。
+- 逐行质量门控先于 GroupAmount：RowIssueFlags 含 RELATION_A_INVALID 或 RELATION_A_DUPLICATE，RowStates 返回独立 `VATS2_RELATION_QUALITY_BLOCKED`，不调用 GroupAmount，不比较金额。保留完整 RelationQualityFlags 与 RelationIssues（原 BIndex/ExcelRow/ReferenceIndex/AIndex/AExcelRow/Flags）。
+- 无质量阻断才调用冻结 `VATStage2EvaluateBGroupAmount`；完整保存其 GroupState、Reasons、引用计数、ParserFlags、MatcherFlags、Same/CrossBRowReuse、AmountEvaluated、错误定位和嵌套 Amount。ΣA−B、Decimal、逐项 AIndexes/AAmounts 与 AMOUNT_EQUAL/MISMATCH 完全由冻结层产生，不复制金额算法。
+- A_COLOR_MISSING 后补入的 A、B_COLOR_MISSING 后纳入的整行 B 正常参与数学诊断。INCOMPLETE、NO_REFERENCES、SAME 由 GroupAmount 阻断；仅 CROSS 不阻断。不因金额相等清除任何原关系风险或决定免人工。
+- 结果使用完整 BIndex 空间：BInScope、BRowIds、RowStates、GroupAmounts、RelationQualityFlags 均1-based；零记录数组未分配。范围外 RowStates=EA_OUT_OF_SCOPE；质量阻断行的默认 GroupAmounts 未执行，不得把其嵌套默认值解释为成功。
+- RowStates 前四项与冻结 GroupState 对齐：EA_NOT_COMPARABLE=0、EA_COMPARED=1、EA_AMOUNT_ERROR=2、EA_INVALID_INPUT=3；RELATION_QUALITY_BLOCKED=4、EA_OUT_OF_SCOPE=5（均带 VATS2_ 前缀）。GroupAmounts 保留冻结接口原枚举名称。
+- 主 Status（VATS2_EFFECTIVE_AMOUNT_ 前缀）：OK=0、INVALID_INPUT=1（上游非OK）、INVALID_CONTRACT=2（输入结构/来源错误）、GROUP_ERROR=3（冻结 GroupAmount 返回 INVALID_INPUT）。后者保留完整行结果并增加 InvalidGroupCount，不能伪装金额不等；必须先检查主状态。
+- 汇总 EffectiveBCount、ComparedCount、EqualCount、MismatchCount、NotComparableCount、AmountErrorCount、RelationQualityBlockedCount、InvalidGroupCount；前者等于各组状态数量之和，ComparedCount=EqualCount+MismatchCount。这些只是诊断统计，不是最终审核 PASS/FAIL。
+- 拒绝 Snapshot/Effective 非OK、record count不一致、记录数组边界或原Index/ExcelRow错位、B范围/原文/引用计数/候选映射损坏。完整 AIntegrity 与质量摘要交叉检查，逐 UNIQUE 关联与有序 RelationIssues 一一核对，再核对 RowIssueFlags 的 OR；未知标志、缺失、多余、重复、越界问题记录均拒绝。
+- EffectiveConflicts 必须OK并对应完整B数量；调用冻结 BConflict 扫描器作契约对照，逐字段核验原有冲突结果（含原 BRowId、AIndex、ReferenceIndex、计数和标志）。不另写冲突算法，不替换或修复传入结果。
+- 契约失败清空部分输出，只保留明确 Status 和 ErrorSide/Index/ReferenceIndex/Reason。输入必须属于同一批次；本层不重新生成号码匹配或 AIntegrity 结果，不引入 fingerprint。
+- 新测试入口 `./tools/build.ps1 -EffectiveAmountTestOnly`，新测试200/200断言PASS；十二组冻结回归全部PASS，共814项；合计1014项。没有修改旧测试语义、冻结源码或release。
+- C5.2完成即停止。不实现总体A/B金额快速门、总体审核、short suffix豁免、最终A_ONLY/B_ONLY结论、baseline、fingerprint、冻结/解冻、UI、最终报告或release。C5.3未开始。

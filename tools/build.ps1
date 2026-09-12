@@ -12,7 +12,8 @@
     [switch]$SnapshotTestOnly,
     [switch]$CompletedScopeTestOnly,
     [switch]$FullFallbackTestOnly,
-    [switch]$EffectiveRelationsTestOnly
+    [switch]$EffectiveRelationsTestOnly,
+    [switch]$EffectiveAmountTestOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,7 +31,7 @@ $securityKeyExisted = Test-Path -LiteralPath $securityPath
 # 只创建本项目发布物，不安装到用户的 Personal.xlsb，也不覆盖已有发布文件。
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 $releaseFile = Join-Path $outputDir 'VATCheck.xlsm'
-if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
+if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly -and -not $EffectiveAmountTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
 
 try {
     if ($TemporaryTrust) {
@@ -50,6 +51,22 @@ try {
     $book = $excel.Workbooks.Add(-4167)
     $project = $book.VBProject
     if ($null -eq $project) { throw 'Excel 不允许访问 VBA 工程。可按说明手动安装，或经授权使用 -TemporaryTrust 临时构建。' }
+
+    if ($EffectiveAmountTestOnly) {
+        # C5.2 只用内存快照测试统一组金额诊断，不加载 UI 或导出 release。
+        foreach ($moduleName in @('modVATStage2Parser', 'modVATStage2Matcher', 'modVATStage2AIntegrity', 'modVATStage2BRowMatch', 'modVATStage2BConflict', 'modVATStage2ExcelSnapshot', 'modVATStage2CompletedScope', 'modVATStage2FullFallback', 'modVATStage2EffectiveRelations', 'modVATStage2Amount', 'modVATStage2GroupAmount', 'modVATStage2EffectiveAmount', 'modVATStage2EffAmountTests')) {
+            $core = $project.VBComponents.Add(1)
+            $core.Name = $moduleName
+            $moduleDir = if ($moduleName -eq 'modVATStage2EffAmountTests') { 'tests' } else { 'src' }
+            $moduleText = [IO.File]::ReadAllText((Join-Path $root "$moduleDir/$moduleName.bas"), [Text.Encoding]::UTF8)
+            $core.CodeModule.AddFromString(($moduleText -replace '(?m)^Attribute VB_Name = .*\r?\n', ''))
+        }
+        $result = [string]$excel.Run('VATStage2EffectiveAmount_SelfTest')
+        [IO.File]::WriteAllText((Join-Path $reportDir 'stage2-effective-amount-test-results.txt'), $result, [Text.UTF8Encoding]::new($true))
+        Write-Output $result
+        if (-not $result.StartsWith('PASS:')) { throw 'C5.2 统一组金额自测失败，请读取 tests/stage2-effective-amount-test-results.txt。' }
+        return
+    }
 
     if ($EffectiveRelationsTestOnly) {
         # C5.1 只测试关系整合、完整性及冲突重扫，不加载金额或 UI。
