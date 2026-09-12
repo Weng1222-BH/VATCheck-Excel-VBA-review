@@ -251,3 +251,16 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - 契约失败清空部分输出，只保留明确 Status 和 ErrorSide/Index/ReferenceIndex/Reason。输入必须属于同一批次；本层不重新生成号码匹配或 AIntegrity 结果，不引入 fingerprint。
 - 新测试入口 `./tools/build.ps1 -EffectiveAmountTestOnly`，新测试200/200断言PASS；十二组冻结回归全部PASS，共814项；合计1014项。没有修改旧测试语义、冻结源码或release。
 - C5.2完成即停止。不实现总体A/B金额快速门、总体审核、short suffix豁免、最终A_ONLY/B_ONLY结论、baseline、fingerprint、冻结/解冻、UI、最终报告或release。C5.3未开始。
+
+## C5.3：SHORT_SUFFIX_REVIEW 本次运行豁免策略（2026-09-12）
+
+- 新模块 `modVATStage2ShortSuffixPolicy`；入口 `VATStage2EvaluateShortSuffixPolicy(a, b, effective, amounts, aggregateReliableEqual) As VATS2ShortSuffixPolicyResult`。前四项为只读ByRef的A/B Snapshot、EffectiveRelations、EffectiveAmount；最后为ByVal Boolean，由调用方确认Stage 1完成金额扫描可靠、没有完成色空金额warning/致命异常且Decimal总体精确相等。本模块不计算或推断该资格。
+- 仅为Effective范围内原引用MatcherFlags实际含SHORT_SUFFIX_REVIEW的引用生成扁平Decision；不是按长度自行补加风险。冻结Matcher对short NOT_FOUND也可能保留此标志，其决策仍为REVIEW_REQUIRED；无标志的exact、长suffix和空A情况下NOT_FOUND不生成决策。
+- WAIVED_THIS_RUN必须同时满足：aggregateReliableEqual=True；B整行完整且全部UNIQUE；C5.2该完整组实际比较成功且AMOUNT_EQUAL；RelationQualityFlags=0；整行及各引用ParserFlags=0；无SAME/CROSS冲突；B已完成且该组全部唯一匹配A均已完成；无其它身份结构风险。任一不满足则REVIEW_REQUIRED，理由位可组合。
+- 仅豁免短suffix本次单独人工复核，不代表最终审核通过，不写回EffectiveRelations/EffectiveAmount，不清除MatcherFlags，不持久化。调用方不得用策略结果替代原始风险来源。
+- 每个Decision保存原BIndex、ExcelRow、ReferenceIndex、AIndex、ReferenceDigits、Decision和ReasonFlags；按BIndex及引用原序排列。非唯一引用AIndex=0表示没有唯一对应，不从MULTIPLE中选第一项；完整候选仍由调用方保留的原关系提供。
+- Decision常量：VATS2_REVIEW_REQUIRED=0、VATS2_WAIVED_THIS_RUN=1。原因位：VATS2_AGGREGATE_NOT_ELIGIBLE=1、VATS2_ROW_NOT_COMPLETE_UNIQUE=2、VATS2_GROUP_NOT_EQUAL=4、VATS2_PARSER_RISK=8、VATS2_RELATION_QUALITY_RISK=16、VATS2_CONFLICT_RISK=32、VATS2_COLOR_MISSING=64、VATS2_OTHER_STRUCTURE_RISK=128。未知的非short Matcher风险位视为其它结构风险，不自动豁免。
+- 结果另有Status、AggregateReliableEqual、DecisionCount、Decisions()、WaivedCount、ReviewRequiredCount、ErrorBIndex/ReferenceIndex/Reason。Status为VATS2_SHORT_POLICY_OK=0、INVALID_INPUT=1、INVALID_CONTRACT=2（后三者同前缀）。失败清空部分决策，不能保留局部豁免；零决策数组未分配。
+- 只校验本层所用状态、计数/索引空间、范围/行号、唯一候选身份、关系质量标志、组来源风险、实际比较状态与组内AIndex的一致性。对short标志与exact/长引用的矛盾拒绝，而不改写原flag。不复制C5.1/C5.2全部防御性校验，不重做AIntegrity。
+- 仅读取C5.2的SAME/CROSS及已有EffectiveConflicts关联是否涉及本B，作为CONFLICT_RISK；不重新分组或扫描冲突。无金额重算、Parser/Matcher调度、最终审核、A_ONLY/B_ONLY、baseline/fingerprint、冻结、UI或release。
+- 新入口 `./tools/build.ps1 -ShortSuffixPolicyTestOnly`：139/139断言PASS；十三组旧回归共1014项全部PASS，合计1153项。冻结源码、旧测试和release哈希不变。C5.3完成后停止，未开始下一阶段。
