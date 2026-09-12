@@ -1,0 +1,52 @@
+# 真实业务工作簿和 Excel 锁文件（含大写扩展名）
+*.[xX][lL][sS]
+*.[xX][lL][sS][xX]
+*.[xX][lL][sS][bB]
+*.[xX][lL][sS][mM]
+~$*
+
+# 发布二进制、历史归档、恢复数据与备份
+/release/
+/release-backups/
+/recovery_*/
+/archive/
+/_HANDOFF/
+/backup/
+/backups/
+*.bak
+*.backup
+*.old
+*.orig
+*.zip
+*.7z
+
+# 本地业务数据、含真实文件路径的诊断记录
+*.csv
+*.tsv
+/data/
+/business-data/
+/tests/real-header-location.txt
+/tests/header-row-diagnosis.md
+
+# 临时诊断、缓存、锁文件与本地凭据
+/%SystemDrive%/
+.freebuff/
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.tmp
+*.temp
+*.log
+*.lock
+*.swp
+*~
+__pycache__/
+.pytest_cache/
+/tmp/
+/temp/
+
+# 公开镜像额外排除项
+/private/
+Thumbs.db

@@ -1,0 +1,35 @@
+﻿PASS: 34 cases
+PASS 单引用 exact
+PASS 单引用 suffix
+PASS 两个 exact 唯一
+PASS exact 与 suffix 混合
+PASS 部分未找到保留成功结果
+PASS 部分 multiple 保留成功结果
+PASS 多个未找到
+PASS multiple 所有候选顺序
+PASS 空原文零引用
+PASS 普通文字零引用
+PASS 零引用保留结构风险
+PASS 无 NO 仍可唯一
+PASS 短尾号仍可唯一
+PASS 缺 NO 与短尾号风险分开
+PASS 空分隔风险不否定唯一
+PASS 纯数字尾注不新增引用
+PASS 重复引用只传播风险
+PASS exact 优先于两个 suffix
+PASS 多个 exact 不混入 suffix
+PASS 混合分隔引用顺序与 A 顺序独立
+PASS 零下界 A
+PASS 负下界 A
+PASS 前导零保留
+PASS 空 A 所有引用未找到
+PASS 无效 A 范围不伪装未找到
+PASS 未分配 A 非零计数
+PASS A 数量越界
+PASS 零引用不调用 Matcher 检查 A
+PASS 只读有效 A 前缀范围
+PASS 四种 Parser 风险加 Matcher 风险
+PASS 短号未找到仍传播 Matcher 风险
+PASS 前缀括号原文定位完整保留
+PASS 英文数字尾注完全排除
+PASS 唯一多个未找到同时保留

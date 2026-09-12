@@ -1,0 +1,16 @@
+﻿FAIL: 测试失败：格式回归：新版找到格式化的精确 B 表头
+PASS 首行 SUM：A 唯一找到非首行表头
+PASS 首行 SUM：A 准确定位 I3 和第9列 I
+PASS 首行 SUM：A 从 I4 扫描，完成色 I1 合计不参与
+PASS 首行 SUM：B 唯一找到非首行表头
+PASS 首行 SUM：B 准确定位 F5 和第6列 F
+PASS 首行 SUM：B 从 F6 扫描，完成色 F1 合计不参与
+PASS 首行 SUM：两边有效明细正常比较
+PASS 首行 SUM：真实窗体选择 Sheet 后自动定位双表
+PASS 混合前置内容：A 仍准确找到 I7
+PASS 混合前置内容：B 仍准确找到 F7
+PASS 混合前置内容：A 上方数字文本空行公式全部不参与
+PASS 混合前置内容：B 上方数字文本空行公式全部不参与
+PASS 混合前置内容：Decimal 有效明细比较正常
+PASS 格式回归：真实格式改变显示文本而不改变 Value2
+PASS 格式回归：旧 xlValues + xlWhole 确实漏掉真实表头

@@ -1,0 +1,49 @@
+﻿PASS: 48 cases
+PASS 整数相等
+PASS 小数相等
+PASS A 大于 B 正差额
+PASS A 小于 B 负差额
+PASS 多 A 相等
+PASS 多 A 不等
+PASS 0.1加0.2精确等于0.3
+PASS 大 Decimal 金额
+PASS 大数差一不丢失
+PASS 最小 Decimal 小数
+PASS 最小非零差额不容差
+PASS 分以下差额不四舍五入
+PASS 不同小数位精确相等
+PASS 负数与零
+PASS 合法零金额
+PASS 保留顺序和重复 AIndex
+PASS 两个数组不同下界
+PASS 金额负下界索引零
+PASS 只覆盖前部
+PASS 空组不比较
+PASS 已分配但零组
+PASS 负 aCount
+PASS 索引容量不足
+PASS 金额容量不足
+PASS 索引数组未分配
+PASS 金额数组未分配
+PASS A 非数字文本
+PASS B 非数字文本
+PASS A 数字文本拒绝
+PASS B 数字文本拒绝
+PASS A Boolean
+PASS B Boolean
+PASS A Excel Error
+PASS B Excel Error
+PASS A Empty
+PASS B Empty
+PASS A Null
+PASS B Null
+PASS 空字符串不是零
+PASS 中间非法准确定位
+PASS 中间非法负下标定位
+PASS A 日期类型拒绝
+PASS B 日期类型拒绝
+PASS A CDec 转换溢出
+PASS B CDec 转换溢出
+PASS Decimal 累加溢出
+PASS Decimal 差额溢出
+PASS 所有允许数值子类型转 Decimal

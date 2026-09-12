@@ -1,0 +1,30 @@
+﻿PASS: 29 cases
+PASS 无重复
+PASS 两个相同号码
+PASS 同号三次
+PASS 两个重复组
+PASS 不连续重复
+PASS 前导零不同
+PASS 前导零重复保持
+PASS 相同尾号非重复
+PASS 零下界
+PASS 正任意下界
+PASS 负下界
+PASS aCount 忽略后段重复
+PASS aCount 保留范围内重复
+PASS 未分配空数组
+PASS 已分配但 aCount 零
+PASS 负 aCount
+PASS aCount 超容量
+PASS 未分配却声称非空
+PASS 首次顺序不同于第二次出现顺序
+PASS 单个号码
+PASS 多个空串仅报告非法值
+PASS 非 ASCII 字符与空白不清洗
+PASS 非法值和重复风险共存
+PASS 重复非法值不当发票重复
+PASS 非法索引保留负下界
+PASS 有效范围外非法值不检查
+PASS 长号码字符串不丢精度
+PASS 零与多位零保持不同
+PASS 控制字符不清洗

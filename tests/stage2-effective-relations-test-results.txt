@@ -1,0 +1,136 @@
+﻿PASS: 135 assertions
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 第一层全部unique逐字段保持
+PASS 完整BIndex空间不压缩且未涉及B占位
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS merged B只补全中间NOT_FOUND
+PASS 补全后整行计数和MatchState刷新
+PASS Parser所有字段保持ref1
+PASS Parser所有字段保持ref2
+PASS Parser所有字段保持ref3
+PASS 前导零原AIndex与B行号不变
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 两个NOT_FOUND分别补全且计数守恒
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS fallback multiple及notfound整合后仍INCOMPLETE
+PASS multiple全部候选保序不选择
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 空scope转full短exact后flags仍来自冻结Matcher
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 补全后MatcherFlags重新OR为SHORT_SUFFIX
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 替换NOT_FOUND的旧短suffix flags被清除
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS full exact不覆盖第一层suffix unique
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 第一层multiple不被全表exact替换
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS fallback补全不清除Parser来源风险及字段
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 同一缺色merged B被两个完成A命中只纳入一次
+PASS 缺色B整行成功失败引用与候选完全保留
+PASS 未涉及未完成B不进入effective或association
+PASS 纳入缺色B后原BIndex与ExcelRow仍保留
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 缺色merged B中的multiple也保留
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 两个fallback B复用同A新产生CROSS
+PASS post-fallback冲突保留原B2/B5和A3
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 同B两个fallback ref指同A重扫产生SAME
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS completed B与缺色B之间新产生CROSS
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 冻结AIntegrity完整保存非法与重复结果
+PASS 原AIndex质量摘要准确
+PASS 无关问题A不删除正常关系
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 真实suffix unique指向非法A标RELATION_A_INVALID
+PASS 非法关联记录原索引行号与引用位置
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS scope unique但全A重复成员标RELATION_A_DUPLICATE
+PASS Snapshot所有字段不变
+PASS completed完整输入不变
+PASS fallback完整输入不变
+PASS Effective完整结果重复调用确定
+PASS 双空输入正常零关系并执行完整性与冲突扫描
+PASS 非OK输入拒绝1
+PASS 非OK输入拒绝2
+PASS 非OK输入拒绝3
+PASS 损坏patch映射契约拒绝且无部分关系4
+PASS 损坏patch映射契约拒绝且无部分关系5
+PASS 损坏patch映射契约拒绝且无部分关系6
+PASS 损坏patch映射契约拒绝且无部分关系7
+PASS 损坏patch映射契约拒绝且无部分关系8
+PASS 损坏patch映射契约拒绝且无部分关系9
+PASS 损坏patch映射契约拒绝且无部分关系10
+PASS 损坏patch映射契约拒绝且无部分关系11
+PASS 损坏patch映射契约拒绝且无部分关系12
+PASS 损坏patch映射契约拒绝且无部分关系13
+PASS 损坏patch映射契约拒绝且无部分关系14
+PASS 损坏patch映射契约拒绝且无部分关系15
+PASS 损坏patch映射契约拒绝且无部分关系16
+PASS 损坏patch映射契约拒绝且无部分关系17
+PASS 缺色B整行与Hit契约拒绝1
+PASS 缺色B整行与Hit契约拒绝2
+PASS 缺色B整行与Hit契约拒绝3
+PASS 缺色B整行与Hit契约拒绝4
+PASS 缺色B整行与Hit契约拒绝5
+PASS 缺色B整行与Hit契约拒绝6
+PASS 缺色B整行与Hit契约拒绝7
+PASS 缺色B整行与Hit契约拒绝8
+PASS 缺色B整行与Hit契约拒绝9

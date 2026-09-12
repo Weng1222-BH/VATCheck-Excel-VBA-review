@@ -1,0 +1,39 @@
+﻿PASS: 38 cases
+PASS exact 唯一
+PASS exact 优先于两个 suffix
+PASS exact 多个
+PASS 九位 suffix
+PASS 六位 suffix
+PASS 五位 suffix
+PASS suffix 多个
+PASS 无匹配
+PASS B 比 A 长
+PASS 前导零 exact
+PASS 前导零 suffix
+PASS 候选保留 A 顺序
+PASS 六位 exact 无短号风险
+PASS 一位 exact 无短号风险
+PASS 一位 suffix 不设门槛
+PASS 多个 exact 排除 suffix
+PASS 未分配空 A
+PASS 已分配但有效数为零
+PASS 只检查 aCount 指定部分
+PASS 零下界保留索引
+PASS 任意下界保留索引
+PASS 负下界保留索引
+PASS 重复 A suffix 不去重
+PASS 七位 suffix 无短号风险
+PASS 短号未找到仍记录 suffix 路径
+PASS 空 A 不执行 suffix
+PASS 空引用无效
+PASS 不 Trim
+PASS 不解析字母前缀
+PASS 全角数字无效
+PASS 小数无效
+PASS 分隔符无效
+PASS 尾换行无效
+PASS 负 aCount
+PASS aCount 超过容量
+PASS 未分配 A 却声称有元素
+PASS 长字符串不转数值
+PASS 长字符串 suffix

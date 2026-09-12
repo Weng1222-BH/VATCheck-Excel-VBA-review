@@ -1,0 +1,42 @@
+﻿PASS: 41 cases
+PASS 不同 A 无冲突
+PASS 两个 exact 跨 B
+PASS exact 与 suffix 跨 B
+PASS 三个 B 共同引用
+PASS 同 B 不同引用复用
+PASS 同组同时两种复用
+PASS NOT_FOUND 不参与
+PASS suffix multiple 不取其中一个
+PASS exact multiple 不参与
+PASS INCOMPLETE 中 unique 参与
+PASS Parser 无 NO 风险不阻断
+PASS 结构与尾注风险不阻断
+PASS 短尾号风险不阻断
+PASS Parser 去重不虚构同 B 关联
+PASS 去重后仍可跨 B
+PASS 多组按首次而非成组时间排序
+PASS 组内跳过非 unique 保留引用索引
+PASS 独立的数组下界
+PASS 正下界 B 与负下界 ID
+PASS 只检查 bCount 前部
+PASS 空未分配数组
+PASS 已分配 bCount 零
+PASS 负 bCount
+PASS bRows 容量不足
+PASS bRowIds 容量不足
+PASS bRows 未分配
+PASS bRowIds 未分配
+PASS RowId 相同也算两个记录
+PASS 零引用 B 行
+PASS UNIQUE 声称零候选
+PASS UNIQUE 声称两个候选
+PASS UNIQUE 候选数组未分配
+PASS 引用数量非法
+PASS 引用数组未分配
+PASS INVALID_REFERENCE 不参与
+PASS INVALID_A_RANGE 不参与
+PASS 同 AIndex 不同完整号码拒绝
+PASS 仅按 AIndex 而非完整号码分组
+PASS 行 INVALID_INPUT 不过滤其 unique
+PASS AIndex 可以为负
+PASS 晚发契约异常不保留部分计数

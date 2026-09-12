@@ -1,0 +1,133 @@
+﻿PASS: 132 assertions
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 合并B仅中间NOT_FOUND触发fallback
+PASS 未完成A exact形成缺色证据
+PASS 正向原B索引行号及原A索引行号保持
+PASS 前导零号码和未完成属性保持
+PASS 保留原合并B整行关系而非局部金额组
+PASS 已覆盖完成A不反向搜索
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 未完成A suffix unique及冻结短号风险
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 完整A无命中且无blocker可作为missing evidence
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS full A exact MULTIPLE不选择候选
+PASS full多个候选保持原A2和A4顺序
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS full A suffix MULTIPLE保持歧义
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 全表exact不覆盖已成立的completed suffix
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 为另一A执行full B也不反改第一层
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 多B引用同一未完成A保留全部证据且缺色A按行计数
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 未出现的完成A才执行反向full B
+PASS 多个未完成B唯一指向A全保留
+PASS 反向保留B2和B4原索引行号
+PASS 未完成merged B返回全部三引用及失败引用
+PASS 完整B关系仍使用原AIndex
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 同一缺色合并B被多A命中不重复计算缺色行
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 仅completed MULTIPLE覆盖不fallback或判缺色
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS full B只出现multiple候选为ambiguous
+PASS ambiguous保留整行与全部候选
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS unique与multiple并存时保留二者不丢歧义
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS full B无候选且无blocker形成可靠证据
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 双空快照正常零fallback
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 空B也完成反向搜索并形成missing evidence
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 非String A阻断确定缺失类型0
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 非String A阻断确定缺失类型1
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 非String A阻断确定缺失类型2
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 非String A阻断确定缺失类型3
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 非String A阻断确定缺失类型4
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 非String B记录原索引类型和遮蔽证据
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS Parser结构异常产生blocker
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 纯数字尾注遮蔽也不判确定缺失
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 零引用String保守记录遮蔽
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 正常无NO候选不误标结构blocker
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 反向源A自身不可搜索也不判可靠缺失
+PASS Snapshot输入所有字段不变
+PASS completed输入完整结果不变
+PASS fallback重复调用结果确定
+PASS 非法A String只标遮蔽不Trim修复
+PASS full unique completed明确契约异常
+PASS 非OK输入拒绝1
+PASS 非OK输入拒绝2
+PASS 损坏关系映射拒绝3
+PASS 损坏关系映射拒绝4
+PASS 损坏关系映射拒绝5
+PASS 损坏关系映射拒绝6
+PASS 损坏关系映射拒绝7
+PASS 损坏关系映射拒绝8

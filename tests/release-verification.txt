@@ -1,0 +1,187 @@
+﻿REOPEN_XLSM: PASS: 89 assertions
+PASS: 89 assertions
+PASS 首行 SUM：A 唯一找到非首行表头
+PASS 首行 SUM：A 准确定位 I3 和第9列 I
+PASS 首行 SUM：A 从 I4 扫描，完成色 I1 合计不参与
+PASS 首行 SUM：B 唯一找到非首行表头
+PASS 首行 SUM：B 准确定位 F5 和第6列 F
+PASS 首行 SUM：B 从 F6 扫描，完成色 F1 合计不参与
+PASS 首行 SUM：两边有效明细正常比较
+PASS 首行 SUM：真实窗体选择 Sheet 后自动定位双表
+PASS 混合前置内容：A 仍准确找到 I7
+PASS 混合前置内容：B 仍准确找到 F7
+PASS 混合前置内容：A 上方数字文本空行公式全部不参与
+PASS 混合前置内容：B 上方数字文本空行公式全部不参与
+PASS 混合前置内容：Decimal 有效明细比较正常
+PASS 格式回归：真实格式改变显示文本而不改变 Value2
+PASS 格式回归：旧 xlValues + xlWhole 确实漏掉真实表头
+PASS 格式回归：新版找到格式化的精确 B 表头
+PASS 格式回归：B 定位 F2 和第6列 F
+PASS 格式回归：B 拒绝前后缀、真实空白、换行及不间断空格
+PASS 格式回归：格式化 A 表头的字面星号仍能匹配
+PASS 格式回归：A 仍动态定位 I3
+PASS 格式回归：A 拒绝近似字段、真实空白及全角星号
+PASS 格式回归：双栏自动定位仍沿用严格 Value2 匹配
+PASS 表头星号精确匹配，不匹配后缀文字
+PASS 动态定位非首行 K3 表头
+PASS 多字母列定位
+PASS 列号、字母和表头地址展示
+PASS 不同列及同列不同行的重复表头都列出
+PASS 缺少表头不猜测列
+PASS Decimal：0.1 + 0.2 与 0.3 精确相等
+PASS 记录数量不同仍按金额判断一致
+PASS 核对不将工作簿标记为已修改
+PASS 核对不改金额、公式或颜色
+PASS 无填充、其他颜色及相邻列颜色不参与
+PASS 测试修改保持未保存
+PASS 读取未保存金额并显示 A 较多方向
+PASS 核对不会自动保存
+PASS 显示 B 较多方向
+PASS 读取未保存颜色修改
+PASS 隐藏行照常参与
+PASS 填色空白尾行警告并跳过，有效金额继续比较
+PASS 空金额分别统计完成色、实际计入、未计入行数
+PASS 结果完整展示三类行数
+PASS 空金额警告不影响有效金额精确相等
+PASS 列出两边全部被跳过的空金额位置
+PASS 空金额警告与布尔值并存仍阻断，并保留警告位置
+PASS 空金额警告不会放宽 Decimal 转换失败
+PASS 数字文本也必须阻止核对
+PASS 两边异常一起显示准确单元格
+PASS 公式空字符串作为空金额报错
+PASS 数值公式结果转 Decimal 后累加
+PASS 负数及零金额参与
+PASS 布尔值不是金额
+PASS 超出 Decimal 范围明确失败
+PASS 财务金额分组显示
+PASS 保留分以下差额，避免显示零差额却不一致
+PASS 大 Decimal 金额显示不经过浮点格式化
+PASS 无填充不能作为完成颜色样本
+PASS 白色填充与无填充分开
+PASS 选择白色时不计入无填充记录
+PASS 多单元格颜色样本明确拒绝
+PASS 条件格式按当前显示颜色匹配
+PASS 表头被修改后不使用旧列输出一致
+PASS 已完成金额合并单元格阻止核对
+PASS 双方零记录明确提示
+PASS 只有空金额时明确部分结论且实际计入零行
+PASS 真实窗体 A/B 同屏左右排列
+PASS 选择 Excel 后加载真实 Sheet 列表
+PASS 重复表头必须手动选择，不默认猜测
+PASS 唯一表头自动定位
+PASS 手选重复表头更新实际列号
+PASS 一万行 0.01 精确累加为 100.00
+INFO 一万行扫描用时 0.33 秒
+PASS 文件切换前工具窗体非模态保持可见
+PASS 取色按钮事件保持两表共享完成颜色
+PASS 同一路径忽略大小写复用当前 Workbook
+PASS 文件复用不重复打开且保留未保存修改
+PASS 重新绑定 A 不清空 B 的 Sheet 或字段
+PASS 文件绑定后按钮核对读取两边未保存金额
+PASS 关闭原业务 Workbook 后工具窗体继续存在
+PASS 关闭 A 后只清空 A 的文件、Sheet、字段和定位
+PASS 关闭 A 保留 B 的绑定、定位和未保存状态
+PASS 关闭一侧后不能沿用旧表头输出结果
+PASS 新文件只打开一次并恢复原宏打开设置
+PASS 重新选择新 Excel 文件后加载新 Sheet
+PASS 重新绑定后按新表头动态定位 R7
+PASS 关闭旧文件到重新选择新文件后可以继续核对
+PASS 打开失败保留原绑定和另一侧状态并恢复设置
+PASS 切换文件不自动关闭或保存原业务 Workbook
+PASS 识别原工作簿已关闭
+PASS 关闭 B 同样只使 B 失效且 A 和窗体继续可用
+
+IMPORT_BAS_FRM_FRX: PASS: 89 assertions
+PASS: 89 assertions
+PASS 首行 SUM：A 唯一找到非首行表头
+PASS 首行 SUM：A 准确定位 I3 和第9列 I
+PASS 首行 SUM：A 从 I4 扫描，完成色 I1 合计不参与
+PASS 首行 SUM：B 唯一找到非首行表头
+PASS 首行 SUM：B 准确定位 F5 和第6列 F
+PASS 首行 SUM：B 从 F6 扫描，完成色 F1 合计不参与
+PASS 首行 SUM：两边有效明细正常比较
+PASS 首行 SUM：真实窗体选择 Sheet 后自动定位双表
+PASS 混合前置内容：A 仍准确找到 I7
+PASS 混合前置内容：B 仍准确找到 F7
+PASS 混合前置内容：A 上方数字文本空行公式全部不参与
+PASS 混合前置内容：B 上方数字文本空行公式全部不参与
+PASS 混合前置内容：Decimal 有效明细比较正常
+PASS 格式回归：真实格式改变显示文本而不改变 Value2
+PASS 格式回归：旧 xlValues + xlWhole 确实漏掉真实表头
+PASS 格式回归：新版找到格式化的精确 B 表头
+PASS 格式回归：B 定位 F2 和第6列 F
+PASS 格式回归：B 拒绝前后缀、真实空白、换行及不间断空格
+PASS 格式回归：格式化 A 表头的字面星号仍能匹配
+PASS 格式回归：A 仍动态定位 I3
+PASS 格式回归：A 拒绝近似字段、真实空白及全角星号
+PASS 格式回归：双栏自动定位仍沿用严格 Value2 匹配
+PASS 表头星号精确匹配，不匹配后缀文字
+PASS 动态定位非首行 K3 表头
+PASS 多字母列定位
+PASS 列号、字母和表头地址展示
+PASS 不同列及同列不同行的重复表头都列出
+PASS 缺少表头不猜测列
+PASS Decimal：0.1 + 0.2 与 0.3 精确相等
+PASS 记录数量不同仍按金额判断一致
+PASS 核对不将工作簿标记为已修改
+PASS 核对不改金额、公式或颜色
+PASS 无填充、其他颜色及相邻列颜色不参与
+PASS 测试修改保持未保存
+PASS 读取未保存金额并显示 A 较多方向
+PASS 核对不会自动保存
+PASS 显示 B 较多方向
+PASS 读取未保存颜色修改
+PASS 隐藏行照常参与
+PASS 填色空白尾行警告并跳过，有效金额继续比较
+PASS 空金额分别统计完成色、实际计入、未计入行数
+PASS 结果完整展示三类行数
+PASS 空金额警告不影响有效金额精确相等
+PASS 列出两边全部被跳过的空金额位置
+PASS 空金额警告与布尔值并存仍阻断，并保留警告位置
+PASS 空金额警告不会放宽 Decimal 转换失败
+PASS 数字文本也必须阻止核对
+PASS 两边异常一起显示准确单元格
+PASS 公式空字符串作为空金额报错
+PASS 数值公式结果转 Decimal 后累加
+PASS 负数及零金额参与
+PASS 布尔值不是金额
+PASS 超出 Decimal 范围明确失败
+PASS 财务金额分组显示
+PASS 保留分以下差额，避免显示零差额却不一致
+PASS 大 Decimal 金额显示不经过浮点格式化
+PASS 无填充不能作为完成颜色样本
+PASS 白色填充与无填充分开
+PASS 选择白色时不计入无填充记录
+PASS 多单元格颜色样本明确拒绝
+PASS 条件格式按当前显示颜色匹配
+PASS 表头被修改后不使用旧列输出一致
+PASS 已完成金额合并单元格阻止核对
+PASS 双方零记录明确提示
+PASS 只有空金额时明确部分结论且实际计入零行
+PASS 真实窗体 A/B 同屏左右排列
+PASS 选择 Excel 后加载真实 Sheet 列表
+PASS 重复表头必须手动选择，不默认猜测
+PASS 唯一表头自动定位
+PASS 手选重复表头更新实际列号
+PASS 一万行 0.01 精确累加为 100.00
+INFO 一万行扫描用时 0.36 秒
+PASS 文件切换前工具窗体非模态保持可见
+PASS 取色按钮事件保持两表共享完成颜色
+PASS 同一路径忽略大小写复用当前 Workbook
+PASS 文件复用不重复打开且保留未保存修改
+PASS 重新绑定 A 不清空 B 的 Sheet 或字段
+PASS 文件绑定后按钮核对读取两边未保存金额
+PASS 关闭原业务 Workbook 后工具窗体继续存在
+PASS 关闭 A 后只清空 A 的文件、Sheet、字段和定位
+PASS 关闭 A 保留 B 的绑定、定位和未保存状态
+PASS 关闭一侧后不能沿用旧表头输出结果
+PASS 新文件只打开一次并恢复原宏打开设置
+PASS 重新选择新 Excel 文件后加载新 Sheet
+PASS 重新绑定后按新表头动态定位 R7
+PASS 关闭旧文件到重新选择新文件后可以继续核对
+PASS 打开失败保留原绑定和另一侧状态并恢复设置
+PASS 切换文件不自动关闭或保存原业务 Workbook
+PASS 识别原工作簿已关闭
+PASS 关闭 B 同样只使 B 失效且 A 和窗体继续可用
+
+PASS: 发布版重新打开和原生模块/窗体导入均可运行；测试改动未保存。

@@ -1,0 +1,82 @@
+﻿PASS: 81 assertions
+PASS A多行完整快照和表头元数据
+PASS AIndex连续且非连续Excel行映射准确
+PASS A原值字段不含Excel对象
+PASS 记录数组边界与RecordCount一致
+PASS 完成状态混合且完成索引仍为1和3
+PASS A只检查金额列，身份字段填色不算完成
+PASS A前导零和String类型保持
+PASS A身份原文不Trim
+PASS 数字金额保留Value2 Double
+PASS 文本金额不转换
+PASS 身份存在但完成色空金额保留Empty
+PASS 身份空但零金额仍保留
+PASS 双字段空但金额完成色仍保留
+PASS 身份公式空串仍保留
+PASS 金额公式空串仍保留
+PASS 错误原值不拦截不转零
+PASS 布尔原值保持
+PASS 未完成零金额保留
+PASS 数值身份和日期格式金额保持Value2类型
+PASS A单元格定位不写死列
+PASS 未修改输入值公式格式与隐藏状态
+PASS 没有保存工作簿或修改Saved状态
+PASS A重复调用完整结果一致
+PASS 改变现有记录颜色不改变后续Index
+PASS A当前未保存修改即时读取
+PASS 旧快照不随源数据变化
+PASS B全表快照不受筛选隐藏限制
+PASS BIndex与ExcelRow映射及中间空行
+PASS B供应商原文逐字保留且不调用Parser
+PASS B完成状态只来自税额列
+PASS B金额String与Double原值保持
+PASS B身份存在金额空且无完成色仍保留
+PASS B仅金额仍保留
+PASS B双空完成行仍保留
+PASS B两个字段的公式空串分别保留
+PASS B错误与Boolean原始类型保持
+PASS B单元格地址来自实际列
+PASS B返回值不含Excel对象
+PASS B重复调用完整结果一致
+PASS B源值公式格式筛选及隐藏状态不变
+PASS B改变完成色后完整Index不变
+PASS B未保存原文即时读取且原快照独立
+PASS 颜色模式0原生预期与Stage1计数一致
+PASS 颜色模式0 A/B DisplayFormat parity
+PASS 颜色模式0快照读取不改变格式
+PASS 颜色模式1原生预期与Stage1计数一致
+PASS 颜色模式1 A/B DisplayFormat parity
+PASS 颜色模式1快照读取不改变格式
+PASS 颜色模式2原生预期与Stage1计数一致
+PASS 颜色模式2 A/B DisplayFormat parity
+PASS 颜色模式2快照读取不改变格式
+PASS 颜色模式3原生预期与Stage1计数一致
+PASS 颜色模式3 A/B DisplayFormat parity
+PASS 颜色模式3快照读取不改变格式
+PASS 颜色模式4原生预期与Stage1计数一致
+PASS 颜色模式4 A/B DisplayFormat parity
+PASS 颜色模式4快照读取不改变格式
+PASS 条件格式使用实际显示而非基础Interior
+PASS 颜色模式5原生预期与Stage1计数一致
+PASS 颜色模式5 A/B DisplayFormat parity
+PASS 颜色模式5快照读取不改变格式
+PASS 图案仍保留Stage1完成计数但不做金额合法性判断
+PASS Nothing Worksheet两侧明确失败
+PASS 两侧非法HeaderRow=-1
+PASS 两侧非法HeaderRow=0
+PASS 两侧非法HeaderRow=1048577
+PASS 两侧身份列越界=-1
+PASS 两侧金额列越界=-1
+PASS 两侧身份列越界=0
+PASS 两侧金额列越界=0
+PASS 两侧身份列越界=16385
+PASS 两侧金额列越界=16385
+PASS 合法最后行表头和最后列返回正常空结果
+PASS 全空工作表正常零记录
+PASS 仅格式UsedRange尾部不制造记录
+PASS A数组扩容跨256条不丢失映射
+PASS B数组扩容跨256条不丢失映射
+PASS A快照在原工作簿关闭后仍可读取原值与位置
+PASS B快照在原工作簿关闭后仍可读取原文
+PASS 已关闭A Worksheet明确失效且无部分记录
+PASS 已关闭B Worksheet明确失效
