@@ -301,3 +301,16 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - 只检查合法主状态、OK时Boolean类型、相关非负计数、Compared=Equal+Mismatch、EffectiveB=各组状态计数之和且不超过FullBRecordCount、OK时InvalidGroupCount=0、FindingCount=CodeCounts之和及非负豁免计数。计数求和避免Long溢出，不涉及财务金额重算；不复制上游完整校验。
 - ErrorSource/ErrorReason记录必要契约或失败上游；最终结果不复制Findings数组、不生成用户报告、fingerprint、持久化、freeze/unfreeze、UI或release。上游须来自同批真实诊断，本层不证明全部内容真实性。
 - `./tools/build.ps1 -FinalDecisionTestOnly`真实Excel172/172 PASS；十六组既有回归1517项全部PASS，合计1689。37个冻结源码/旧测试/release哈希不变；测试宿主加载冻结Stage1窗体仅满足AggregateGate类型所在模块编译依赖，不显示UI。完成C6.3即停止，不进入下一阶段。
+
+## C7.1：Stable Fingerprint Core（2026-09-13）
+
+- 新模块 `modVATStage2Fingerprint`，入口 `VATStage2BuildFingerprints(a, b) As VATS2FingerprintResult`。纯内存只读Snapshot，不访问Excel、文件、WinAPI、外部程序或网络，不调用业务引擎，不实现持久化/增量/跳过。
+- 使用完整可逆canonical signature，协议版本VATFP1。Pack(s)=十进制Len(s)+冒号+s，长度单位为UTF-16代码单元；每个Variant携带VarType及payload的独立长度前缀，保留原字符串内容，不能以普通分隔符拼接替代。
+- A record仅编码Side=A、InvoiceDigitsRaw、AmountRaw、IsCompleted、InvoiceHasFormula、AmountHasFormula；B对应Side=B、SupplierTextRaw、AmountRaw、IsCompleted、SupplierHasFormula、AmountHasFormula。排除Index、ExcelRow、单元格地址、表名/表头行等位置元数据。
+- Empty/Null按类型区分；String不Trim/规范化；整数用原生整数文本；Boolean为1/0；Single/Double/Currency用固定数值UDT的LSet字节编码，Date按底层Double日期序列编码；Decimal直接CStr保留完整精度，Error使用原生错误编号文本并带类型。无显示格式、VATTryAmount或金额修复。对象、数组及未支持类型明确拒绝。
+- Decimal/Error原生文本的稳定范围是同一Windows/VBA及区域设置；不承诺跨区域配置的签名互通。协议若更改须显式升级版本。完整签名包含业务原文，不是加密或脱敏。
+- Record协议为Pack版本、Side和五个已编码字段；Batch为Pack批次版本、Side、记录数及按vbBinaryCompare稳定归并排序后的各完整record。排序只操作副本，重复指纹保留全部次数，不Set去重。Combined固定Pack组合版本、ABatch、BBatch，始终区分A/B。
+- AFingerprints/BFingerprints保持当前Snapshot原顺序，批次签名不受纯排序/位置变化影响。零记录数组未分配，但两侧空Batch和Combined仍有确定的版本/侧别/数量编码。
+- 结果保存Status、两侧RecordCount、记录数组、两侧Batch及Combined、ErrorSide/Index/Reason。状态为FINGERPRINT_OK=0、INVALID_INPUT=1、INVALID_CONTRACT=2、UNSUPPORTED_VALUE=3、ENCODING_ERROR=4（均VATS2_FINGERPRINT_前缀）。失败不发布任何部分record或Batch。
+- 契约仅Snapshot OK、RecordCount非负、数组精确1..count/零时未分配、当前Index等于数组位置、ExcelRow正数且递增。位置只作当次映射验证，不作为长期身份。
+- `./tools/build.ps1 -FingerprintTestOnly`真实Excel383/383 PASS；十七组冻结回归1689项全部PASS，合计2072。39个冻结源码/旧测试/release哈希不变。未开始C7.2、baseline文件、持久化、增量跳过、orchestrator、UI、report或release。
