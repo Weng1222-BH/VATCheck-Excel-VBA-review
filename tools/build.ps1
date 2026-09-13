@@ -15,7 +15,8 @@
     [switch]$EffectiveRelationsTestOnly,
     [switch]$EffectiveAmountTestOnly,
     [switch]$ShortSuffixPolicyTestOnly,
-    [switch]$AggregateGateTestOnly
+    [switch]$AggregateGateTestOnly,
+    [switch]$AuditFindingsTestOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -33,7 +34,7 @@ $securityKeyExisted = Test-Path -LiteralPath $securityPath
 # 只创建本项目发布物，不安装到用户的 Personal.xlsb，也不覆盖已有发布文件。
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 $releaseFile = Join-Path $outputDir 'VATCheck.xlsm'
-if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly -and -not $EffectiveAmountTestOnly -and -not $ShortSuffixPolicyTestOnly -and -not $AggregateGateTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
+if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly -and -not $EffectiveAmountTestOnly -and -not $ShortSuffixPolicyTestOnly -and -not $AggregateGateTestOnly -and -not $AuditFindingsTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
 
 try {
     if ($TemporaryTrust) {
@@ -70,6 +71,22 @@ try {
         [IO.File]::WriteAllText((Join-Path $reportDir 'stage2-aggregate-gate-test-results.txt'), $result, [Text.UTF8Encoding]::new($true))
         Write-Output $result
         if (-not $result.StartsWith('PASS:')) { throw 'C6.1 总体金额健康门自测失败，请读取 tests/stage2-aggregate-gate-test-results.txt。' }
+        return
+    }
+
+    if ($AuditFindingsTestOnly) {
+        # C6.2 测试夹具使用冻结上游，事项层只读取上游证据，不接入UI或release。
+        foreach ($moduleName in @('modVATStage2Parser', 'modVATStage2Matcher', 'modVATStage2AIntegrity', 'modVATStage2BRowMatch', 'modVATStage2BConflict', 'modVATStage2ExcelSnapshot', 'modVATStage2CompletedScope', 'modVATStage2FullFallback', 'modVATStage2EffectiveRelations', 'modVATStage2Amount', 'modVATStage2GroupAmount', 'modVATStage2EffectiveAmount', 'modVATStage2ShortSuffixPolicy', 'modVATStage2AuditFindings', 'modVATStage2AuditTests')) {
+            $core = $project.VBComponents.Add(1)
+            $core.Name = $moduleName
+            $moduleDir = if ($moduleName -eq 'modVATStage2AuditTests') { 'tests' } else { 'src' }
+            $moduleText = [IO.File]::ReadAllText((Join-Path $root "$moduleDir/$moduleName.bas"), [Text.Encoding]::UTF8)
+            $core.CodeModule.AddFromString(($moduleText -replace '(?m)^Attribute VB_Name = .*\r?\n', ''))
+        }
+        $result = [string]$excel.Run('VATStage2AuditFindings_SelfTest')
+        [IO.File]::WriteAllText((Join-Path $reportDir 'stage2-audit-findings-test-results.txt'), $result, [Text.UTF8Encoding]::new($true))
+        Write-Output $result
+        if (-not $result.StartsWith('PASS:')) { throw 'C6.2 审核事项自测失败，请读取 tests/stage2-audit-findings-test-results.txt。' }
         return
     }
 

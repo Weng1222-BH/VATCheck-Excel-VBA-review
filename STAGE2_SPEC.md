@@ -276,3 +276,16 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - ReliableEqualForShortSuffix为独立Boolean，仅在双侧VATScan可靠成功且无致命Issue、Status=AGGREGATE_OK、两侧WarningCount=0、Difference精确为Decimal零时True。完成色真正空白警告允许有效总额相等，但不得提供短suffix豁免资格。零完成记录按既定条件可产生可靠零相等，不附加行数条件。
 - 正常金额总额直接来自VATScan；只做两个Decimal总额相减及零差判断，不从Snapshot重算，不调用Parser/Matcher或C5.3，不实现最终审核、A_ONLY/B_ONLY、总体报告、baseline/fingerprint、持久化、UI或release。
 - 新测试入口 `./tools/build.ps1 -AggregateGateTestOnly`，170/170断言原生PASS；十四组既有回归1153项全部PASS，合计1323项。xlDone通路实际验证；xlPending/xlCalculating未人为制造，仅完成代码级guard检查，没有为此改变全局计算/安全策略。C6.1完成后停止，不进入C6.2。
+
+## C6.2：统一 Audit Findings（2026-09-13）
+
+- 新模块 `modVATStage2AuditFindings`，入口 `VATStage2BuildAuditFindings(a, b, fallback, effective, amounts, shortPolicy) As VATS2AuditFindingsResult`；六份冻结输入只读，纯内存，不读取Excel、不调用业务引擎、不使用AggregateGate生成Finding。
+- 结果Status区分AUDIT_OK、INVALID_INPUT、INVALID_CONTRACT；不是批次PASS/FAIL。FindingCount/Findings、CodeCounts(1 To 18)、ShortSuffixWaivedCount及ErrorSide/Index/ReferenceIndex/Reason；失败清空部分输出。
+- 每项保留Code、适用A/B原索引及ExcelRow、引用索引及Digits、独立SourceFlags/ReasonFlags/ParserFlags/MatcherFlags、MatchKind、组号及完整Members、Decimal原差额与原金额错误位置/说明。枚举和字段契约详见STAGE2_CHECKPOINT_C6_2.md。
+- 整理A/B缺色、确定A_ONLY/B_ONLY、exact/suffix/full/反向歧义、实际比较的AMOUNT_MISMATCH、AMOUNT_ERROR、不完整组、A全表重复组与非法值、Parser重复及SAME、CROSS、三类Parser风险、short复核、搜索blocker，以及关联质量风险。缺色不抑制金额差异；独立问题同时保留，不用严重问题覆盖其它事实。
+- B缺色按FullBMatches中真实唯一A-B-ref定位；歧义不选择首项，保存全部候选；重复A保存全组A原索引及行号；CROSS保存整组全部B关联。SAME与Parser重复来源区分，完整关系仅质量阻断不标INCOMPLETE_GROUP。
+- A_ONLY/B_ONLY只采信FULL_NOT_FOUND且MissingEvidence=True及适用blocker不存在；SourceBlocked必须对应原A blocker。无候选带blocker时只保留可追溯遮蔽证据，不猜缺失。blocker保存side、OriginalIndex对应的A/BIndex、ExcelRow、Reasons、ParserFlags及RawVarType。
+- 原Parser风险来自有效B及FullBScanned时已读取的范围外B；不额外搜索未扫描记录。short仅采用C5.3决策：REVIEW_REQUIRED形成事项，WAIVED_THIS_RUN只记数量；MatcherFlags永不改写，不重判本次豁免。
+- 相同证据按Code/位置/引用/类型/组/有序成员去重，合并来源位；不依赖Dictionary枚举。排序为A独立事项按AIndex在前，B按BIndex/ReferenceIndex/Code，并列维持上游原序。
+- 只检查所依赖上游状态、数量/原位置/范围、引用候选、金额状态和成员来源、MissingEvidence/Evidence/blocker一致性、C5.3决策与原short一一映射；不重新匹配、计算、判重、扫描或决定最终结论。
+- `./tools/build.ps1 -AuditFindingsTestOnly`真实Excel194/194 PASS；十五组冻结回归1323项全部PASS，合计1517。35个冻结源码/旧测试/release哈希不变；不修改冻结模块，不接入UI/report/release、不进入后续阶段。
