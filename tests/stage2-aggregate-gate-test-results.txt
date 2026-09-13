@@ -1,0 +1,2 @@
+﻿PASS: 170 assertions
+INFO CalculationState：xlDone路径原生验证；非xlDone为代码级guard，未改变全局计算策略以制造状态。

@@ -264,3 +264,15 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - 只校验本层所用状态、计数/索引空间、范围/行号、唯一候选身份、关系质量标志、组来源风险、实际比较状态与组内AIndex的一致性。对short标志与exact/长引用的矛盾拒绝，而不改写原flag。不复制C5.1/C5.2全部防御性校验，不重做AIntegrity。
 - 仅读取C5.2的SAME/CROSS及已有EffectiveConflicts关联是否涉及本B，作为CONFLICT_RISK；不重新分组或扫描冲突。无金额重算、Parser/Matcher调度、最终审核、A_ONLY/B_ONLY、baseline/fingerprint、冻结、UI或release。
 - 新入口 `./tools/build.ps1 -ShortSuffixPolicyTestOnly`：139/139断言PASS；十三组旧回归共1014项全部PASS，合计1153项。冻结源码、旧测试和release哈希不变。C5.3完成后停止，未开始下一阶段。
+
+## C6.1：Stage 1 总体金额健康门（Aggregate Gate，2026-09-12）
+
+- 独立模块 `modVATStage2AggregateGate`，入口 `VATStage2EvaluateAggregateGate(ByVal headerA As Range, ByVal headerB As Range, ByVal completedColor As Long) As VATS2AggregateGateResult`。允许只读Excel，不修改、保存、关闭业务工作簿。
+- CalculationState非xlDone先返回CALCULATION_PENDING，不扫描。分别调用冻结VATScan(headerA, VAT_FIELD_A, "A", ...)与VATScan(headerB, VAT_FIELD_B, "B", ...)，各一次；一侧失败仍保留另一侧扫描证据。双侧成功后再次读取CalculationState，仍非xlDone则不输出金额结论。无Calculate调用、等待监控或全局计算设置修改。
+- 不重新实现颜色、金额类型、Decimal累加、真正空白、公式空串、合并单元格或异常判断；不调用VATResult、不解析显示文本。仅将VATScan原始Collection条目按原序复制成各侧String数组。
+- Status：VATS2_AGGREGATE_OK=0、VATS2_CALCULATION_PENDING=1、VATS2_SCAN_BLOCKED=2；增加VATS2_AGGREGATE_ARITHMETIC_ERROR=3表示两边可靠总额相减溢出等算术失败，不能冒充扫描成功后的金额不等。
+- 返回CalculationState、AScanSucceeded/BScanSucceeded；A/BCompletedCount、IncludedCount、EmptyWarningCount；AIssueCount/AIssues、BIssueCount/BIssues、AWarningCount/AWarnings、BWarningCount/BWarnings；另有模块自身ErrorReason。VATScan的问题/警告文本不重新解释。
+- 仅AGGREGATE_OK发布TotalA、TotalB、Difference=A-B（均Variant/Decimal）和TotalsEqual（Variant中的Boolean）。其余状态三项金额及TotalsEqual均Empty，ReliableEqualForShortSuffix=False；保留已获取的扫描状态、计数及问题/警告证据。必须先看Status，不能把Empty或未执行扫描当零金额结论。
+- ReliableEqualForShortSuffix为独立Boolean，仅在双侧VATScan可靠成功且无致命Issue、Status=AGGREGATE_OK、两侧WarningCount=0、Difference精确为Decimal零时True。完成色真正空白警告允许有效总额相等，但不得提供短suffix豁免资格。零完成记录按既定条件可产生可靠零相等，不附加行数条件。
+- 正常金额总额直接来自VATScan；只做两个Decimal总额相减及零差判断，不从Snapshot重算，不调用Parser/Matcher或C5.3，不实现最终审核、A_ONLY/B_ONLY、总体报告、baseline/fingerprint、持久化、UI或release。
+- 新测试入口 `./tools/build.ps1 -AggregateGateTestOnly`，170/170断言原生PASS；十四组既有回归1153项全部PASS，合计1323项。xlDone通路实际验证；xlPending/xlCalculating未人为制造，仅完成代码级guard检查，没有为此改变全局计算/安全策略。C6.1完成后停止，不进入C6.2。
