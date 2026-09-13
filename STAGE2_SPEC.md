@@ -289,3 +289,15 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - 相同证据按Code/位置/引用/类型/组/有序成员去重，合并来源位；不依赖Dictionary枚举。排序为A独立事项按AIndex在前，B按BIndex/ReferenceIndex/Code，并列维持上游原序。
 - 只检查所依赖上游状态、数量/原位置/范围、引用候选、金额状态和成员来源、MissingEvidence/Evidence/blocker一致性、C5.3决策与原short一一映射；不重新匹配、计算、判重、扫描或决定最终结论。
 - `./tools/build.ps1 -AuditFindingsTestOnly`真实Excel194/194 PASS；十五组冻结回归1323项全部PASS，合计1517。35个冻结源码/旧测试/release哈希不变；不修改冻结模块，不接入UI/report/release、不进入后续阶段。
+
+## C6.3：Final Audit Decision（2026-09-13）
+
+- 新模块 `modVATStage2FinalDecision`，入口 `VATStage2BuildFinalDecision(aggregate, amounts, findings) As VATS2FinalDecisionResult`。三个冻结输入只读ByRef，纯内存，不访问Excel、不重算金额、不读取逐条Finding/逐组金额数组、不调用上游引擎。
+- Status：FINAL_DECISION_OK=0、FINAL_INVALID_INPUT=1、FINAL_INVALID_CONTRACT=2。Verdict：FINAL_UNAVAILABLE=0、FINAL_VERIFIED=1、FINAL_REVIEW_REQUIRED=2（均VATS2_前缀）。合法Aggregate非OK始终UNAVAILABLE；金额层或Finding层非OK为INVALID_INPUT/UNAVAILABLE；未知状态或必要契约损坏为INVALID_CONTRACT/UNAVAILABLE。
+- VERIFIED仅在Aggregate OK、TotalsEqual为True、A/BWarningCount均0、Audit OK且FindingCount=0。总体不等、任一warning、任一Finding在Aggregate OK时均REVIEW_REQUIRED；不按Code严重程度重分类或豁免。
+- RequiresManualReview只对应REVIEW_REQUIRED。UNAVAILABLE金额及TotalsEqual保持Empty，不根据残留/部分金额推断一致性；HasAggregateMismatch、NoCompletedRecords及RequiresManualReview保持False，可保留已验证的诊断计数及HasFindings/HasAggregateWarnings。
+- Aggregate OK时TotalA/TotalB/Difference直接复制原Variant/Decimal，TotalsEqual复制Boolean；保留完成/计入/warning计数、七项EffectiveAmount分类统计、FindingCount/18项CodeCounts/ShortSuffixWaivedCount，以及独立HasAggregateMismatch/Warnings、HasFindings等提示。
+- 可靠OK时双方CompletedCount都为0设置NoCompletedRecords=True，仍可VERIFIED。仅一侧零或门未可靠完成的默认零不作此提示。ShortSuffixWaivedCount只统计，不改变Verdict；总体warning/差异不伪造新Finding，逐组equal不覆盖总体差异，总体相等不覆盖已有Finding。
+- 只检查合法主状态、OK时Boolean类型、相关非负计数、Compared=Equal+Mismatch、EffectiveB=各组状态计数之和且不超过FullBRecordCount、OK时InvalidGroupCount=0、FindingCount=CodeCounts之和及非负豁免计数。计数求和避免Long溢出，不涉及财务金额重算；不复制上游完整校验。
+- ErrorSource/ErrorReason记录必要契约或失败上游；最终结果不复制Findings数组、不生成用户报告、fingerprint、持久化、freeze/unfreeze、UI或release。上游须来自同批真实诊断，本层不证明全部内容真实性。
+- `./tools/build.ps1 -FinalDecisionTestOnly`真实Excel172/172 PASS；十六组既有回归1517项全部PASS，合计1689。37个冻结源码/旧测试/release哈希不变；测试宿主加载冻结Stage1窗体仅满足AggregateGate类型所在模块编译依赖，不显示UI。完成C6.3即停止，不进入下一阶段。

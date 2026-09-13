@@ -16,7 +16,8 @@
     [switch]$EffectiveAmountTestOnly,
     [switch]$ShortSuffixPolicyTestOnly,
     [switch]$AggregateGateTestOnly,
-    [switch]$AuditFindingsTestOnly
+    [switch]$AuditFindingsTestOnly,
+    [switch]$FinalDecisionTestOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -34,7 +35,7 @@ $securityKeyExisted = Test-Path -LiteralPath $securityPath
 # 只创建本项目发布物，不安装到用户的 Personal.xlsb，也不覆盖已有发布文件。
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 $releaseFile = Join-Path $outputDir 'VATCheck.xlsm'
-if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly -and -not $EffectiveAmountTestOnly -and -not $ShortSuffixPolicyTestOnly -and -not $AggregateGateTestOnly -and -not $AuditFindingsTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
+if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly -and -not $EffectiveAmountTestOnly -and -not $ShortSuffixPolicyTestOnly -and -not $AggregateGateTestOnly -and -not $AuditFindingsTestOnly -and -not $FinalDecisionTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
 
 try {
     if ($TemporaryTrust) {
@@ -71,6 +72,26 @@ try {
         [IO.File]::WriteAllText((Join-Path $reportDir 'stage2-aggregate-gate-test-results.txt'), $result, [Text.UTF8Encoding]::new($true))
         Write-Output $result
         if (-not $result.StartsWith('PASS:')) { throw 'C6.1 总体金额健康门自测失败，请读取 tests/stage2-aggregate-gate-test-results.txt。' }
+        return
+    }
+
+    if ($FinalDecisionTestOnly) {
+        # C6.3 测试夹具使用冻结上游，判定层只读取三个结构化摘要，不接入UI或release。
+        foreach ($moduleName in @('modVATStage2Parser', 'modVATStage2Matcher', 'modVATStage2AIntegrity', 'modVATStage2BRowMatch', 'modVATStage2BConflict', 'modVATStage2ExcelSnapshot', 'modVATStage2CompletedScope', 'modVATStage2FullFallback', 'modVATStage2EffectiveRelations', 'modVATStage2Amount', 'modVATStage2GroupAmount', 'modVATStage2EffectiveAmount', 'modVATStage2ShortSuffixPolicy', 'modVATStage2AuditFindings', 'modVATCheck', 'modVATStage2AggregateGate', 'modVATStage2FinalDecision', 'modVATStage2FinalTests')) {
+            $core = $project.VBComponents.Add(1)
+            $core.Name = $moduleName
+            $moduleDir = if ($moduleName -eq 'modVATStage2FinalTests') { 'tests' } else { 'src' }
+            $moduleText = [IO.File]::ReadAllText((Join-Path $root "$moduleDir/$moduleName.bas"), [Text.Encoding]::UTF8)
+            $core.CodeModule.AddFromString(($moduleText -replace '(?m)^Attribute VB_Name = .*\r?\n', ''))
+        }
+        # AggregateGate类型所在模块引用冻结Stage1窗体；只满足编译依赖，不显示UI。
+        $form = $project.VBComponents.Add(3)
+        $form.Name = 'frmVATCheck'
+        $form.CodeModule.AddFromString([IO.File]::ReadAllText((Join-Path $root 'src/frmVATCheck.vba'), [Text.Encoding]::UTF8))
+        $result = [string]$excel.Run('VATStage2FinalDecision_SelfTest')
+        [IO.File]::WriteAllText((Join-Path $reportDir 'stage2-final-decision-test-results.txt'), $result, [Text.UTF8Encoding]::new($true))
+        Write-Output $result
+        if (-not $result.StartsWith('PASS:')) { throw 'C6.3 最终判定自测失败，请读取 tests/stage2-final-decision-test-results.txt。' }
         return
     }
 
