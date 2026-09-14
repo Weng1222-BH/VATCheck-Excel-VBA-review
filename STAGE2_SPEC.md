@@ -314,3 +314,14 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - 结果保存Status、两侧RecordCount、记录数组、两侧Batch及Combined、ErrorSide/Index/Reason。状态为FINGERPRINT_OK=0、INVALID_INPUT=1、INVALID_CONTRACT=2、UNSUPPORTED_VALUE=3、ENCODING_ERROR=4（均VATS2_FINGERPRINT_前缀）。失败不发布任何部分record或Batch。
 - 契约仅Snapshot OK、RecordCount非负、数组精确1..count/零时未分配、当前Index等于数组位置、ExcelRow正数且递增。位置只作当次映射验证，不作为长期身份。
 - `./tools/build.ps1 -FingerprintTestOnly`真实Excel383/383 PASS；十七组冻结回归1689项全部PASS，合计2072。39个冻结源码/旧测试/release哈希不变。未开始C7.2、baseline文件、持久化、增量跳过、orchestrator、UI、report或release。
+
+## C7.2：Safe Local Baseline Store（2026-09-14冻结）
+
+- 独立纯VBA `VATStage2SHA256(text)`：FIPS 180-4 SHA-256，UTF-8无BOM，输出64位小写hex；非法UTF-16代理项拒绝，无外部依赖或文件操作。不修改VATFP1。
+- `VATStage2BuildBaseline(fp)`只读C7.1结果，摘要record、ABatch、BBatch、Combined；排序record digest multiset并保留重复。不持久化Index、ExcelRow或地址。原VATFP1 canonical及业务原文永不落盘。
+- `VATStage2SaveBaseline(state, rootOverride)` / `VATStage2LoadBaseline(rootOverride)`。默认`%LOCALAPPDATA%\VATCheck\baseline-v1.dat`，测试注入独立临时目录。不存在文件为正常NOT_FOUND，不决定业务流程。
+- Schema VATBASE1 / fingerprint VATFP1 / digest SHA256-UTF8。固定ASCII/LF顺序字段：三个版本、A/B数量、CreatedUtc/UpdatedUtc、三个batch digest、排序A digest数组、排序B digest数组、前述完整正文的SHA-256校验和与终止LF。严格校验版本、数量、64位小写hex、排序、UTC、校验和及EOF；不忽略尾部垃圾。详细字段契约见C7.2检查点。
+- 状态：OK、NOT_FOUND、INVALID_INPUT、CORRUPT、IO_ERROR、UNSUPPORTED_VERSION；失败不返回部分baseline。时间仅元数据、不参与业务身份；保存不自动改变调用方时间或输入。
+- 安全保存：禁止覆盖创建同目录pending → 仅写digest正文 → 关闭 → 复读验证 → MoveFileExW同卷替换，不先删除正式文件。失败保留旧baseline，仅清理本次拥有的pending。已有pending保留并拒绝写入，不自动恢复或抢占。
+- WinAPI仅用于存储层的UTC和同卷文件替换；SHA层完全纯VBA。摘要/校验和不属于加密或认证，未承诺断电恢复。当前尚未实现skip、freeze/unfreeze、baseline业务资格、incremental、orchestrator、UI、report或release。
+- 测试入口`-BaselineStoreTestOnly`，139项；全部十八组冻结回归2072项，共2211项PASS。细节见`STAGE2_CHECKPOINT_C7_2.md`。

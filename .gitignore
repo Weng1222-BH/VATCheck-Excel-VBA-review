@@ -50,3 +50,7 @@ __pycache__/
 # 公开镜像额外排除项
 /private/
 Thumbs.db
+
+# C7.2本地baseline不进入公开镜像
+baseline-v1.dat
+baseline-v1.pending.tmp
