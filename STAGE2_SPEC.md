@@ -325,3 +325,14 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - 安全保存：禁止覆盖创建同目录pending → 仅写digest正文 → 关闭 → 复读验证 → MoveFileExW同卷替换，不先删除正式文件。失败保留旧baseline，仅清理本次拥有的pending。已有pending保留并拒绝写入，不自动恢复或抢占。
 - WinAPI仅用于存储层的UTC和同卷文件替换；SHA层完全纯VBA。摘要/校验和不属于加密或认证，未承诺断电恢复。当前尚未实现skip、freeze/unfreeze、baseline业务资格、incremental、orchestrator、UI、report或release。
 - 测试入口`-BaselineStoreTestOnly`，139项；全部十八组冻结回归2072项，共2211项PASS。细节见`STAGE2_CHECKPOINT_C7_2.md`。
+## C7.3：Incremental Baseline Delta（2026-09-14冻结）
+
+- 新模块`modVATStage2IncrementalDelta`，入口`VATStage2CompareBaselineDelta(fp, baselineLoad) As VATS2IncrementalDeltaResult`；只读纯内存，不访问Excel/文件、不执行业务匹配。逐条复用冻结VATStage2SHA256；调用冻结VATStage2BuildBaseline仅获得当前三项batch/combined digest，不保存。
+- digest-only旧baseline没有业务主键及旧行号，不能可靠区分NEW/CHANGED/REMOVED。当前只输出UNCHANGED或NEW_OR_CHANGED，旧剩余统一REMOVED_OR_CHANGED；不进行旧新配对或身份猜测。
+- A/B严格分侧消费旧已排序digest multiset的occurrence budget；当前原序中先出现者先消费，相同digest预算耗尽后标NEW_OR_CHANGED。重复次数不能Set去重。旧剩余按digest升序聚合OccurrenceCount。
+- Status：OK=0、FIRST_RUN=1、BASELINE_UNAVAILABLE=2、INVALID_INPUT=3、INVALID_CONTRACT=4（均VATS2_DELTA_前缀）。NOT_FOUND为正常FIRST_RUN：全部当前NEW_OR_CHANGED、无residual、Batch/CombinedUnchanged=False，不是业务异常。CORRUPT/IO_ERROR/UNSUPPORTED_VERSION为BASELINE_UNAVAILABLE：仅保留来源状态和原因、不发布记录分类；调用方需要完整验证，本层不执行。
+- Current项保存当前CurrentIndex、Digest、State，保持原序。ResidualCount是剩余出现次数，ResidualGroupCount是不同digest组数；Residual数组长度为组数。结果含两侧各计数/数组、三项批次相同Boolean及ErrorSide/Index/Reason，零数组未分配。
+- 当前FP须OK、数量/数组合法、record及batch/combined非空；旧OK须内层OK、VATBASE1/VATFP1/SHA256-UTF8、数量/数组合法、排序64位小写hex及合法批次digest。不复制C7.2文件解析和时间戳检查。
+- 三项batch相同标志由对应digest二进制比较；各侧batch相同与该侧当前全UNCHANGED且无residual必须双向一致，Combined相同与两侧完全相同必须双向一致；矛盾INVALID_CONTRACT，清空全部部分结果。
+- UNCHANGED不是freeze/skip许可。不实现验证跳过、自动保存、首次运行业务决策、依赖传播、orchestrator、UI、report或release。C7.4尚未开始。
+- `./tools/build.ps1 -IncrementalDeltaTestOnly`真实Excel288/288 PASS；十九组冻结回归2211/2211 PASS，总计2499项。接口细节及边界见`STAGE2_CHECKPOINT_C7_3.md`。

@@ -19,7 +19,8 @@
     [switch]$AuditFindingsTestOnly,
     [switch]$FinalDecisionTestOnly,
     [switch]$FingerprintTestOnly,
-    [switch]$BaselineStoreTestOnly
+    [switch]$BaselineStoreTestOnly,
+    [switch]$IncrementalDeltaTestOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,7 +38,7 @@ $securityKeyExisted = Test-Path -LiteralPath $securityPath
 # 只创建本项目发布物，不安装到用户的 Personal.xlsb，也不覆盖已有发布文件。
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 $releaseFile = Join-Path $outputDir 'VATCheck.xlsm'
-if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly -and -not $EffectiveAmountTestOnly -and -not $ShortSuffixPolicyTestOnly -and -not $AggregateGateTestOnly -and -not $AuditFindingsTestOnly -and -not $FinalDecisionTestOnly -and -not $FingerprintTestOnly -and -not $BaselineStoreTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
+if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly -and -not $EffectiveAmountTestOnly -and -not $ShortSuffixPolicyTestOnly -and -not $AggregateGateTestOnly -and -not $AuditFindingsTestOnly -and -not $FinalDecisionTestOnly -and -not $FingerprintTestOnly -and -not $BaselineStoreTestOnly -and -not $IncrementalDeltaTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
 
 try {
     if ($TemporaryTrust) {
@@ -77,6 +78,21 @@ try {
         return
     }
 
+    if ($IncrementalDeltaTestOnly) {
+        # C7.3纯内存比较，不调用baseline文件读取/保存，不生成release。
+        foreach ($moduleName in @('modVATStage2ExcelSnapshot', 'modVATStage2Fingerprint', 'modVATStage2Digest', 'modVATStage2BaselineStore', 'modVATStage2IncrementalDelta', 'modVATStage2DeltaTests')) {
+            $core = $project.VBComponents.Add(1)
+            $core.Name = $moduleName
+            $moduleDir = if ($moduleName -eq 'modVATStage2DeltaTests') { 'tests' } else { 'src' }
+            $moduleText = [IO.File]::ReadAllText((Join-Path $root "$moduleDir/$moduleName.bas"), [Text.Encoding]::UTF8)
+            $core.CodeModule.AddFromString(($moduleText -replace '(?m)^Attribute VB_Name = .*\r?\n', ''))
+        }
+        $result = [string]$excel.Run('VATStage2IncrementalDelta_SelfTest')
+        [IO.File]::WriteAllText((Join-Path $reportDir 'stage2-incremental-delta-test-results.txt'), $result, [Text.UTF8Encoding]::new($true))
+        Write-Output $result
+        if (-not $result.StartsWith('PASS:')) { throw 'C7.3增量差异自测失败，请读取 tests/stage2-incremental-delta-test-results.txt。' }
+        return
+    }
     if ($BaselineStoreTestOnly) {
         # C7.2只在临时目录测试摘要存储，不访问正式baseline，不生成release。
         foreach ($moduleName in @('modVATStage2ExcelSnapshot', 'modVATStage2Fingerprint', 'modVATStage2Digest', 'modVATStage2BaselineStore', 'modVATStage2BaselineTests')) {
