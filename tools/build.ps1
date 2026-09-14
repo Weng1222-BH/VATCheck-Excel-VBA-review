@@ -20,7 +20,8 @@
     [switch]$FinalDecisionTestOnly,
     [switch]$FingerprintTestOnly,
     [switch]$BaselineStoreTestOnly,
-    [switch]$IncrementalDeltaTestOnly
+    [switch]$IncrementalDeltaTestOnly,
+    [switch]$BoundAuditRunTestOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -38,7 +39,7 @@ $securityKeyExisted = Test-Path -LiteralPath $securityPath
 # 只创建本项目发布物，不安装到用户的 Personal.xlsb，也不覆盖已有发布文件。
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 $releaseFile = Join-Path $outputDir 'VATCheck.xlsm'
-if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly -and -not $EffectiveAmountTestOnly -and -not $ShortSuffixPolicyTestOnly -and -not $AggregateGateTestOnly -and -not $AuditFindingsTestOnly -and -not $FinalDecisionTestOnly -and -not $FingerprintTestOnly -and -not $BaselineStoreTestOnly -and -not $IncrementalDeltaTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
+if ((Test-Path -LiteralPath $releaseFile) -and -not $TestOnly -and -not $ParserTestOnly -and -not $MatcherTestOnly -and -not $AIntegrityTestOnly -and -not $BRowMatchTestOnly -and -not $BConflictTestOnly -and -not $AmountTestOnly -and -not $GroupAmountTestOnly -and -not $SnapshotTestOnly -and -not $CompletedScopeTestOnly -and -not $FullFallbackTestOnly -and -not $EffectiveRelationsTestOnly -and -not $EffectiveAmountTestOnly -and -not $ShortSuffixPolicyTestOnly -and -not $AggregateGateTestOnly -and -not $AuditFindingsTestOnly -and -not $FinalDecisionTestOnly -and -not $FingerprintTestOnly -and -not $BaselineStoreTestOnly -and -not $IncrementalDeltaTestOnly -and -not $BoundAuditRunTestOnly) { throw "发布文件已存在，请先移动或重命名：$releaseFile" }
 
 try {
     if ($TemporaryTrust) {
@@ -78,6 +79,24 @@ try {
         return
     }
 
+    if ($BoundAuditRunTestOnly) {
+        # C7.4完整链仅操作测试创建的内存工作簿，不保存业务文件或生成release。
+        foreach ($moduleName in @('modVATStage2Parser', 'modVATStage2Matcher', 'modVATStage2AIntegrity', 'modVATStage2BRowMatch', 'modVATStage2BConflict', 'modVATStage2ExcelSnapshot', 'modVATStage2CompletedScope', 'modVATStage2FullFallback', 'modVATStage2EffectiveRelations', 'modVATStage2Amount', 'modVATStage2GroupAmount', 'modVATStage2EffectiveAmount', 'modVATStage2ShortSuffixPolicy', 'modVATStage2AuditFindings', 'modVATCheck', 'modVATStage2AggregateGate', 'modVATStage2FinalDecision', 'modVATStage2Fingerprint', 'modVATStage2Digest', 'modVATStage2BaselineStore', 'modVATStage2BoundAuditRun', 'modVATStage2BoundTests')) {
+            $core = $project.VBComponents.Add(1)
+            $core.Name = $moduleName
+            $moduleDir = if ($moduleName -eq 'modVATStage2BoundTests') { 'tests' } else { 'src' }
+            $moduleText = [IO.File]::ReadAllText((Join-Path $root "$moduleDir/$moduleName.bas"), [Text.Encoding]::UTF8)
+            $core.CodeModule.AddFromString(($moduleText -replace '(?m)^Attribute VB_Name = .*\r?\n', ''))
+        }
+        $form = $project.VBComponents.Add(3)
+        $form.Name = 'frmVATCheck'
+        $form.CodeModule.AddFromString([IO.File]::ReadAllText((Join-Path $root 'src/frmVATCheck.vba'), [Text.Encoding]::UTF8))
+        $result = [string]$excel.Run('VATStage2BoundAuditRun_SelfTest')
+        [IO.File]::WriteAllText((Join-Path $reportDir 'stage2-bound-audit-run-test-results.txt'), $result, [Text.UTF8Encoding]::new($true))
+        Write-Output $result
+        if (-not $result.StartsWith('PASS:')) { throw 'C7.4绑定审核自测失败，请读取 tests/stage2-bound-audit-run-test-results.txt。' }
+        return
+    }
     if ($IncrementalDeltaTestOnly) {
         # C7.3纯内存比较，不调用baseline文件读取/保存，不生成release。
         foreach ($moduleName in @('modVATStage2ExcelSnapshot', 'modVATStage2Fingerprint', 'modVATStage2Digest', 'modVATStage2BaselineStore', 'modVATStage2IncrementalDelta', 'modVATStage2DeltaTests')) {

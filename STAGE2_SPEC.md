@@ -336,3 +336,15 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - 三项batch相同标志由对应digest二进制比较；各侧batch相同与该侧当前全UNCHANGED且无residual必须双向一致，Combined相同与两侧完全相同必须双向一致；矛盾INVALID_CONTRACT，清空全部部分结果。
 - UNCHANGED不是freeze/skip许可。不实现验证跳过、自动保存、首次运行业务决策、依赖传播、orchestrator、UI、report或release。C7.4尚未开始。
 - `./tools/build.ps1 -IncrementalDeltaTestOnly`真实Excel288/288 PASS；十九组冻结回归2211/2211 PASS，总计2499项。接口细节及边界见`STAGE2_CHECKPOINT_C7_3.md`。
+## C7.4：Bound Full Audit Run（2026-09-15冻结）
+
+- 架构顺序调整：C6.3保持冻结；原Verified Seal推迟至C7.5。裸FinalDecision无批次身份，不能与任意fp事后拼接。新入口`VATStage2RunBoundFullAudit(aInvoiceHeader, aAmountHeader, bSupplierHeader, bAmountHeader, completedColor)`内部从当前Excel产生完整审核链和批次身份，拒绝以外部FinalDecision/Fingerprint/Findings/Effective等对象作为主入口参数。
+- 单侧两个header必须为同一有效Worksheet、同一行、不同列、非合并的单个Range；身份header非空文本；金额名称严格使用冻结VAT_FIELD_A/B。只接受当前Excel实例；行列全部从Range推导，不接受额外列号。
+- 内部顺序：A/B Snapshot → Fingerprint → AggregateGate → 确认Snapshot/Fingerprint → CompletedScope → FullFallback → EffectiveRelations → EffectiveAmount → ShortSuffixPolicy → AuditFindings → FinalDecision → BuildBaseline(fp)仅取得三项digest和数量。全部复用冻结模块；不保存baseline，不读取历史结果。
+- Aggregate可靠相等资格只能由本次AggregateGate传入ShortSuffixPolicy。合法Aggregate非OK仍允许其它链路完成，由冻结C6.3输出UNAVAILABLE；BoundRun OK只是技术上成功，不等于VERIFIED。
+- 结果协议VATRUN1/VATFP1/SHA256-UTF8；保存当前A/B数量、三个batch/combined digest、本次FinalDecision、完整AuditFindings和Aggregate，以及ErrorStage/ErrorReason。仅成功后发布绑定；非OK清空部分digest/事项并将Final置为INVALID_INPUT/UNAVAILABLE。
+- Status（VATS2_BOUND_RUN_前缀）：OK、INVALID_INPUT、STAGE_FAILED、SOURCE_CHANGED、INVALID_CONTRACT。阶段错误定位详见C7.4检查点。
+- 当次稳定性：Aggregate后用同四个header复读、重建fp，比较记录数量、当前位置逐条record fingerprint、ExcelRow和顺序；不同则SOURCE_CHANGED。纯内存辅助只返回Boolean，不创建BoundRun。C7.1长期身份继续忽略行号；独立完整运行之间的移动/排序仍保持batch语义。没有DoEvents、timer、事件或计算策略改动。
+- 前后观测不是事务锁或恶意内存认证；不覆盖两次观测之间变化后恢复及返回后的变化。本层提供同一次受控调用的API绑定，不提供freeze/reuse/skip许可。
+- C7.5只允许使用此受控入口产生的绑定结果；本轮没有Seal、baseline写入、skip执行、部分freeze、依赖图、UI、report或release。
+- `./tools/build.ps1 -BoundAuditRunTestOnly`真实Excel171/171 PASS；全部二十组冻结回归2499/2499 PASS，共2670项。SourceChanged并发窗口为代码级guard，辅助比较已确定性测试；未制造并发或降低Excel安全策略。

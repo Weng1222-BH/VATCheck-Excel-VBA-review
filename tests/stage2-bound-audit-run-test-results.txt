@@ -1,0 +1,2 @@
+﻿PASS: 171 assertions
+INFO SourceChanged并发窗口为代码级guard；纯内存比较逻辑已确定性验证，未引入DoEvents/timer或修改事件、计算策略。
