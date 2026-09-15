@@ -362,3 +362,15 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - Build/Save/Load/Eligibility彼此独立，不自动保存或删除baseline/seal、不联动写入，双文件事务提交留给后续阶段。无UI/report/release接入。
 - 测试入口 `./tools/build.ps1 -VerificationSealTestOnly`；使用独立临时目录和合成数据，结果与限制详见STAGE2_CHECKPOINT_C7_5.md。
 - 最终Excel原生测试：C7.5 217/217；原二十一组2670/2670；总计2887/2887 PASS。
+
+## C7.6：Verified State Commit Coordinator
+
+- 新增 `VATStage2BuildBaselineForBoundRun(run, fp)`：fp/BoundRun必须成功，直接调用冻结BuildBaseline后检查VATRUN1、指纹/摘要协议、两侧记录数量及三个批次digest与run完全一致。失败不发布部分baseline，不接受跨批拼接。
+- `VATStage2CommitVerifiedState(run, fp, Optional rootOverride="")`只允许BoundRun OK + FinalDecision OK/VERIFIED；内部绑定辅助与冻结BuildVerificationSeal全部通过才写文件。不接受裸FinalDecision或外部已构造的baseline/seal绕过检查。
+- 固定顺序：保存baseline，成功后才保存seal。baseline失败不触碰seal；seal失败保留新baseline和旧/缺失seal，不回滚、不复制恢复、不删除、不新增撤销状态。仅调用冻结Save，无直接I/O或新序列化算法。
+- Status为VATS2_COMMIT_OK / INVALID_INPUT / BASELINE_FAILED / SEAL_FAILED_PARTIAL / INVALID_CONTRACT。结果含BaselineStatus、SealStatus、两个Written、ErrorStage/ErrorReason；Save未调用时对应Status=-1，Written默认False。具体阶段及状态值见C7.6检查点。
+- 用户确认：PARTIAL只表示本次双文件写入不完整，不是可信状态撤销。不同批旧seal与新baseline不匹配或seal缺失时，冻结C7.5要求全量；同批已有效证明的旧seal仍完全匹配时，C7.5继续允许REUSE_ELIGIBLE。Coordinator不判断复用资格，不强制所有PARTIAL全量。
+- 不伪造双文件原子事务，不改变冻结单文件pending/replace逻辑；不一致由三方验证拒绝，仍一致的有效历史证明保留。没有双文件隔离、回滚或断电事务承诺。
+- 不读取旧baseline/seal、不访问Workbook、不保存业务原文；无运行时reuse/skip、历史审核结果返回、部分freeze、依赖图、UI、report或release。测试全部使用合成工作簿和独立临时目录。
+- 测试入口 `./tools/build.ps1 -VerifiedStateCommitTestOnly`；新测试191/191 PASS，含不同批Partial必须全量和同批Partial允许资格两种关键验证。全回归结果见C7.6检查点。
+- 最终Excel原生验证：新191/191，原22组2887/2887，合计3078/3078 PASS；冻结模块及release未修改。
