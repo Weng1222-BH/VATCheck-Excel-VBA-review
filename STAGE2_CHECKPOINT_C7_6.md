@@ -47,10 +47,9 @@ Coordinator不访问Workbook、不保存canonical、号码、供应商或金额�
 
 后续入口：STATUS → STAGE2_SPEC C7.6 → 本检查点 → 新模块/测试；按需读取C7.2、C7.4、C7.5。C7.6完成后停止，后续阶段需新的用户规格。
 
-## Git收尾断点
+## Git收尾结果
 
-实现及全回归已完成。提交前全部白名单扫描无新增敏感内容；唯一机器路径仍为STATUS.md，公开副本按既有规则脱敏。46个冻结源码/旧测试与C7.5公开镜像SHA-256相同，release未变。
-
-私有Git提交/push两次均在执行前被自动审批服务拒绝，原始原因：`Automatic approval review failed: Selected model is at capacity. Please try a different model.` 命令未执行，未创建C7.6提交或暂存内容。私有HEAD仍为114f11e634949ec15d46fa182a990a1d93120f73；公开镜像本轮未改动、未同步C7.6。不要重写代码或重跑已通过测试来处理该环境阻塞。
-
-恢复时先git status/log确认断点，再提交当前8个变更文件：STATUS、SPEC、本检查点、新源码、新测试、新测试结果、Stage1计时结果、build.ps1。私有提交名`stage2: complete C7.6 verified state commit`并push。随后按白名单同步独立公开镜像、路径脱敏、二次安全扫描，提交`stage2: mirror C7.6 verified state commit`并push；不得带入私有.git/history或baseline/seal文件。成功后更新本段为实际收尾结果。没有业务实现阻塞，不开始下一阶段。
+- Private正式C7.6提交：`51fccfc9a070d085ebd05facb98cb03d2f6a184c`，`stage2: complete C7.6 verified state commit`。已push至origin/main；完成核验时为main、工作区clean、HEAD=origin/main。
+- Public正式C7.6提交：`59c83106ce812bfe15dbce5248f3be556d92ecae`，`stage2: mirror C7.6 verified state commit`。已push至origin/main；完成核验时为main、工作区clean、HEAD=origin/main。
+- Public二次安全扫描通过：102个白名单文件；路径已脱敏；无baseline/seal状态文件、凭据、业务数据或private Git历史。
+- C7.6实现、测试、镜像和Git收尾全部完成。无已知阻塞。下一阶段尚未开始。
