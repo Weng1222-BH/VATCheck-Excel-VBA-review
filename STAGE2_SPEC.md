@@ -348,3 +348,17 @@ Parser 只产生候选，不证明它是有效发票，不与 A 表匹配；不�
 - 前后观测不是事务锁或恶意内存认证；不覆盖两次观测之间变化后恢复及返回后的变化。本层提供同一次受控调用的API绑定，不提供freeze/reuse/skip许可。
 - C7.5只允许使用此受控入口产生的绑定结果；本轮没有Seal、baseline写入、skip执行、部分freeze、依赖图、UI、report或release。
 - `./tools/build.ps1 -BoundAuditRunTestOnly`真实Excel171/171 PASS；全部二十组冻结回归2499/2499 PASS，共2670项。SourceChanged并发窗口为代码级guard，辅助比较已确定性测试；未制造并发或降低Excel安全策略。
+## C7.5：Verified Baseline Seal + Whole-Batch Reuse Eligibility
+
+- 唯一Build入口为 `VATStage2BuildVerificationSeal(ByRef run As VATS2BoundAuditRunResult)`；不接受裸FinalDecision、裸Fingerprint或任意拼接。C7.4技术OK且Final VERIFIED、Aggregate可靠无warning、Audit无Finding、协议/数量/摘要及必要摘要一致才可构建。失败不发布部分Seal，C6.3及其它冻结模块不变。
+- Schema/Binding/Policy/Fingerprint/Digest：VATVERIFY1 / VATRUN1 / VATSTAGE2-POLICY1 / VATFP1 / SHA256-UTF8。Policy显式版本化；不兼容审核规则升级必须升级policy，不能以Git SHA代替。
+- Seal只保存五协议、A/B数量、VerifiedUtc和三项批次digest。禁止canonical、号码、供应商、金额、行号、Finding及Workbook路径。正常API防跨批误用，不对恶意伪造VBA UDT或文件提供认证。
+- 独立Save/Load默认 `%LOCALAPPDATA%\VATCheck\verified-v1.dat`，pending为verified-v1.pending.tmp，支持rootOverride。11行正文顺序：五协议、A/B数量、UTC、A/B/Combined摘要；第12行为冻结SHA256(正文含LF)校验和，终止LF，无尾部数据。严格ASCII/LF、版本、非负Long、UTC、64位小写hex及EOF。
+- VATS2_VERIFY状态：OK/NOT_FOUND/INVALID_INPUT/CORRUPT/IO_ERROR/UNSUPPORTED_VERSION；UnsupportedField结构化区分SCHEMA/BINDING/POLICY/FINGERPRINT/DIGEST。错误不返回部分可信Seal。安全保存与C7.2同等级：禁止覆盖创建pending、关闭复读、验证相同、同卷原子替换；旧文件不先删除，仅清理本次pending。
+- `VATStage2EvaluateReuseEligibility(delta, baselineLoad, sealLoad)`为纯内存资格结果，Status为OK/INVALID_INPUT/INVALID_CONTRACT，Decision默认FULL_VALIDATION_REQUIRED，只有所有条件成立才REUSE_ELIGIBLE。
+- 资格必须delta OK、baseline OK、seal OK；A/B新增变化与旧剩余均0、三项BatchUnchanged全True；Seal全部协议有效、与baseline两侧数量及三项摘要相等。授予前核实delta当前UNCHANGED记录完整消费传入baseline多重集，防止传错delta来源。不重跑差异/审核算法。
+- ReasonFlags：FIRST_RUN、BASELINE_UNAVAILABLE、SEAL_NOT_FOUND、SEAL_UNAVAILABLE、DATA_NEW_OR_CHANGED、DATA_REMOVED_OR_CHANGED、BATCH_CHANGED、SEAL_BASELINE_MISMATCH、POLICY_VERSION_MISMATCH；可组合，不是AuditFinding。POLICY失效只读UnsupportedField，不解析ErrorReason。
+- baseline相同本身不足够，必须三方一致。任意记录变化均需要完整验证；移动/排序不改长期指纹时仍可具备整批资格。没有部分freeze、依赖图、skip执行、历史审核结果返回或最终流程。
+- Build/Save/Load/Eligibility彼此独立，不自动保存或删除baseline/seal、不联动写入，双文件事务提交留给后续阶段。无UI/report/release接入。
+- 测试入口 `./tools/build.ps1 -VerificationSealTestOnly`；使用独立临时目录和合成数据，结果与限制详见STAGE2_CHECKPOINT_C7_5.md。
+- 最终Excel原生测试：C7.5 217/217；原二十一组2670/2670；总计2887/2887 PASS。
